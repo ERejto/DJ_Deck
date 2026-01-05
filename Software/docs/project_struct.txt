@@ -1,0 +1,17 @@
+cpp
+
+(This is one class song class)
+file io -> file object (custom like music object)? 
+- idk maybe like just an array basically for now
+
+this is going to be trained in pytorch basically so for now just inference
+
+file objects can go through a pipeline? class which just knows about which ops to do?
+
+then just have to code ops for the song class? spectrogram etc. etc.
+
+1. song class with spectrogram for now? how to validate> can i plot easily
+2. whatever other ops
+
+
+

@@ -17,12 +17,19 @@ module i2c_controller #(
   inout         sda,
   output        scl);
 
-  localparam C_CHIP_ADDRESS_LEN = 7;
-  localparam C_BYTE_LEN         = 8;
+  localparam logic [1:0] C_OP_IDLE      = 2'd0;
+  localparam logic [1:0] C_OP_WRITE     = 2'd1;
+  localparam logic [1:0] C_OP_READ      = 2'd2;
+  localparam logic [6:0] C_CHIP_ADDRESS = 7'h38;
 
   //state typedef
-  typedef enum logic [7:0] {S_IDLE, S_TX_CHIP_ADDRESS, S_TX_RBIT, S_TX_WBIT, S_TX_ADDRESS, S_TX_SUB_ADDRESS, S_TX_WDATA, S_RX_RDATA} statetype_t;
+  typedef enum logic [7:0] {S_IDLE, S_TX_CHIP_ADDRESS, S_TX_ADDRESS, S_TX_SUB_ADDRESS, S_TX_WDATA, S_RX_RDATA} statetype_t;
   statetype_t curr_state, next_state;
+
+  logic ack;
+  logic [1:0] op;
+  logic [7:0] txdata;
+
 
   //state register
   always_ff @(posedge clk) begin
@@ -40,55 +47,58 @@ module i2c_controller #(
         if (start)  
           next_state = S_TX_CHIP_ADDRESS;
       S_TX_CHIP_ADDRESS: 
-        if (bit_count == C_CHIP_ADDRESS_LEN) 
-          if (rnw_r) 
-            next_state = S_TX_RBIT;
-          else
-            next_state = S_TX_WBIT;
-      S_TX_RBIT: 
-        if (bit_count == C_BYTE_LEN) 
-          next_state = S_TX_ADDRESS;
-      S_TX_WBIT: 
-        if (bit_count == C_BYTE_LEN) 
+        if (ack) 
           next_state = S_TX_ADDRESS;
       S_TX_ADDRESS: 
-        if (bit_count == C_BYTE_LEN)
+        if (ack)
           next_state = S_TX_SUB_ADDRESS;
       S_TX_SUB_ADDRESS: 
-        if (bit_count == C_BYTE_LEN)
-          if (rnw_r)
+        if (ack)
+          if (rnw)
             next_state = S_RX_RDATA;
           else 
             next_state = S_TX_WDATA;
       S_TX_WDATA:
-        if (bit_count == C_BYTE_LEN) 
+        if (ack) 
           next_state = S_IDLE;
       S_RX_RDATA:
-        if (bit_count == C_BYTE_LEN) 
+        if (ack) 
           next_state = S_IDLE;
       default: 
         next_state = S_IDLE;
     endcase
   end
 
-  //state outputs
+  //state dependent signals
   always_ff @(posedge clk) begin
-    if (rst) 
-      scl_en <= 1'b0;
-    else if (curr_state == S_IDLE) 
-      scl_en <= 1'b0;
+    if (rst)
+      op <= C_OP_IDLE;
+    else if (curr_state == S_IDLE)
+      op <= C_OP_IDLE;
+    else if (curr_state == S_RX_RDATA)
+      op <= C_OP_READ;
     else 
-      scl_en <= 1'b1;
-
-    if (rst) 
-      sda_dir <= 1'b0;
-    else if (curr_state == S_RX_RDATA) 
-      sda_dir <= 1'b1;
+      op <= C_OP_WRITE;
 
     if (rst)
-      rnw_r <= 1'b0;
-    else if (next_state == S_TX_CHIP_ADDRESS)
-      rnw_r <= rnw;
+      txdata <= 8'b0;
+    else if (curr_state == S_TX_CHIP_ADDRESS)
+      txdata <= {C_CHIP_ADDRESS, rnw};
+    else 
+      txdata <= wdata;
+
   end
+
+  i2c_engine #(
+    .C_CLK_DIVISOR(C_CLK_DIVISOR)) 
+  i2c_engine_i (
+    .clk(clk),
+    .rst(rst),
+    .op(op),
+    .wdata(txdata),
+    .rdata(rdata),
+    .scl(scl),
+    .sda(sda),
+    .ack(ack));
 
 endmodule

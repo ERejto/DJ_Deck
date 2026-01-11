@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="work.codec_control_tb.wdb" id="1">
+         <top_modules>
+            <top_module name="codec_control_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="2,341.161 ns"></ZoomStartTime>
+      <ZoomEndTime time="2,417.402 ns"></ZoomEndTime>
+      <Cursor1Time time="2,353.867 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="533"></NameColumnWidth>
+      <ValueColumnWidth column_width="251"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="39" />
+   <wvobject type="logic" fp_name="/codec_control_tb/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/rst">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/start">
+      <obj_property name="ElementShortName">start</obj_property>
+      <obj_property name="ObjectShortName">start</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/address">
+      <obj_property name="ElementShortName">address[15:0]</obj_property>
+      <obj_property name="ObjectShortName">address[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/wdata">
+      <obj_property name="ElementShortName">wdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/rdata">
+      <obj_property name="ElementShortName">rdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/sda">
+      <obj_property name="ElementShortName">sda</obj_property>
+      <obj_property name="ObjectShortName">sda</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/scl">
+      <obj_property name="ElementShortName">scl</obj_property>
+      <obj_property name="ObjectShortName">scl</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/rnw">
+      <obj_property name="ElementShortName">rnw</obj_property>
+      <obj_property name="ObjectShortName">rnw</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/C_CLK_PERIOD_100MHZ">
+      <obj_property name="ElementShortName">C_CLK_PERIOD_100MHZ[31:0]</obj_property>
+      <obj_property name="ObjectShortName">C_CLK_PERIOD_100MHZ[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/codec_bfm_i/scl">
+      <obj_property name="ElementShortName">scl</obj_property>
+      <obj_property name="ObjectShortName">scl</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/codec_bfm_i/sda">
+      <obj_property name="ElementShortName">sda</obj_property>
+      <obj_property name="ObjectShortName">sda</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/codec_bfm_i/sda_in">
+      <obj_property name="ElementShortName">sda_in</obj_property>
+      <obj_property name="ObjectShortName">sda_in</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/codec_bfm_i/sda_out">
+      <obj_property name="ElementShortName">sda_out</obj_property>
+      <obj_property name="ObjectShortName">sda_out</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/codec_bfm_i/sda_en">
+      <obj_property name="ElementShortName">sda_en</obj_property>
+      <obj_property name="ObjectShortName">sda_en</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/codec_bfm_i/bit_count">
+      <obj_property name="ElementShortName">bit_count[31:0]</obj_property>
+      <obj_property name="ObjectShortName">bit_count[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/codec_bfm_i/rdata">
+      <obj_property name="ElementShortName">rdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/codec_bfm_i/wdata">
+      <obj_property name="ElementShortName">wdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/codec_bfm_i/rnw">
+      <obj_property name="ElementShortName">rnw</obj_property>
+      <obj_property name="ObjectShortName">rnw</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/codec_bfm_i/C_BIT_COUNT">
+      <obj_property name="ElementShortName">C_BIT_COUNT[31:0]</obj_property>
+      <obj_property name="ObjectShortName">C_BIT_COUNT[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/i2c_controller_i/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/i2c_controller_i/rst">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/i2c_controller_i/rnw">
+      <obj_property name="ElementShortName">rnw</obj_property>
+      <obj_property name="ObjectShortName">rnw</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/i2c_controller_i/start">
+      <obj_property name="ElementShortName">start</obj_property>
+      <obj_property name="ObjectShortName">start</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/address">
+      <obj_property name="ElementShortName">address[15:0]</obj_property>
+      <obj_property name="ObjectShortName">address[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/wdata">
+      <obj_property name="ElementShortName">wdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">wdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/rdata">
+      <obj_property name="ElementShortName">rdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/i2c_controller_i/sda">
+      <obj_property name="ElementShortName">sda</obj_property>
+      <obj_property name="ObjectShortName">sda</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/i2c_controller_i/scl">
+      <obj_property name="ElementShortName">scl</obj_property>
+      <obj_property name="ObjectShortName">scl</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/curr_state">
+      <obj_property name="ElementShortName">curr_state[7:0]</obj_property>
+      <obj_property name="ObjectShortName">curr_state[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/next_state">
+      <obj_property name="ElementShortName">next_state[7:0]</obj_property>
+      <obj_property name="ObjectShortName">next_state[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/codec_control_tb/i2c_controller_i/ack">
+      <obj_property name="ElementShortName">ack</obj_property>
+      <obj_property name="ObjectShortName">ack</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/op">
+      <obj_property name="ElementShortName">op[1:0]</obj_property>
+      <obj_property name="ObjectShortName">op[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/txdata">
+      <obj_property name="ElementShortName">txdata[7:0]</obj_property>
+      <obj_property name="ObjectShortName">txdata[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/C_CLK_DIVISOR">
+      <obj_property name="ElementShortName">C_CLK_DIVISOR[15:0]</obj_property>
+      <obj_property name="ObjectShortName">C_CLK_DIVISOR[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/C_OP_IDLE">
+      <obj_property name="ElementShortName">C_OP_IDLE[1:0]</obj_property>
+      <obj_property name="ObjectShortName">C_OP_IDLE[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/C_OP_WRITE">
+      <obj_property name="ElementShortName">C_OP_WRITE[1:0]</obj_property>
+      <obj_property name="ObjectShortName">C_OP_WRITE[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/C_OP_READ">
+      <obj_property name="ElementShortName">C_OP_READ[1:0]</obj_property>
+      <obj_property name="ObjectShortName">C_OP_READ[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/codec_control_tb/i2c_controller_i/C_CHIP_ADDRESS">
+      <obj_property name="ElementShortName">C_CHIP_ADDRESS[6:0]</obj_property>
+      <obj_property name="ObjectShortName">C_CHIP_ADDRESS[6:0]</obj_property>
+   </wvobject>
+</wave_config>

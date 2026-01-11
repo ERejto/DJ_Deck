@@ -34,7 +34,7 @@ module i2c_engine # (
       sda_dir <= 1'b0; //default write
     else if (op == C_OP_IDLE || op == C_OP_READ)
       sda_dir <= 1'b1;
-    else if (bit_count == C_BYTE_LEN) 
+    else if (bit_count == C_BYTE_LEN+1) 
       sda_dir <= 1'b1; //ack bit
     else
       sda_dir <= 1'b0;
@@ -46,7 +46,7 @@ module i2c_engine # (
       shift_in_reg <= 8'b0;
     else if (op == C_OP_IDLE)
       shift_in_reg <= 8'b0; 
-    else if (op == C_OP_READ && scl_count == C_CLK_DIVISOR)
+    else if (op == C_OP_READ && scl_count == C_CLK_DIVISOR-1)
       shift_in_reg <= {shift_in_reg[6:0], sda_in};
   end
 
@@ -56,7 +56,7 @@ module i2c_engine # (
       shift_out_reg <= 8'b0;
     else if (op == C_OP_IDLE)
       shift_out_reg <= wdata;
-    else if (scl_count == C_CLK_DIVISOR/2)
+    else if (scl_count == C_CLK_DIVISOR/2-1)
       shift_out_reg <= {1'b0, shift_out_reg[7:1]};
   end
   
@@ -66,7 +66,7 @@ module i2c_engine # (
       sda_out <= 1'b1;
     else if (op == C_OP_IDLE)
       sda_out <= 1'b1;
-    else if (op == C_OP_WRITE && scl_count == C_CLK_DIVISOR/2)
+    else if (op == C_OP_WRITE && scl_count == C_CLK_DIVISOR/2-1)
       sda_out <= shift_out_reg[0];
   end
 
@@ -84,7 +84,7 @@ module i2c_engine # (
   always_ff @(posedge clk) begin
     if (rst || !scl_en)                  
       scl_count <= 16'b0;
-    else if (scl_count == C_CLK_DIVISOR) 
+    else if (scl_count == C_CLK_DIVISOR-1) 
       scl_count <= 16'b0;
     else                                 
       scl_count <= scl_count + 1'b1;
@@ -94,9 +94,9 @@ module i2c_engine # (
   always_ff @(posedge clk) begin
     if (rst || !scl_en)               
       scl <= 1'b1;
-    else if (scl_count == C_CLK_DIVISOR/2) 
+    else if (scl_count == C_CLK_DIVISOR/2-1) 
       scl <= 1'b0;
-    else if (scl_count == C_CLK_DIVISOR)   
+    else if (scl_count == C_CLK_DIVISOR-1)   
       scl <= 1'b1;
   end
 
@@ -104,19 +104,20 @@ module i2c_engine # (
   always_ff @(posedge clk) begin
     if (rst)                        
       bit_count <= 4'b0;
-    else if (bit_count == C_BYTE_LEN+1)          
-      bit_count <= 4'b0;
-    else if (scl_count == C_CLK_DIVISOR) 
-      bit_count <= bit_count + 4'b1;
+    else if (scl_count == C_CLK_DIVISOR-1) 
+      if (bit_count == C_BYTE_LEN+1)
+        bit_count <= 4'b0;
+      else
+        bit_count <= bit_count + 4'b1;
     end
 
   //ack reg
   always_ff @(posedge clk) begin
     if (rst)
       ack <= 1'b0;
-    else if (bit_count == C_BYTE_LEN)
-      ack <= sda_in;
-    else if (bit_count == 0)
+    else if (bit_count == C_BYTE_LEN && scl_count == C_CLK_DIVISOR-1)
+      ack <= ~sda_in;
+    else 
       ack <= 1'b0;
   end
 

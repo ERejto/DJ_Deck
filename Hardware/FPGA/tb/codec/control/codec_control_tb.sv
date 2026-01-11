@@ -26,6 +26,9 @@ module codec_control_tb;
     rnw   = 1'b0;
     repeat(100) @(posedge clk);
     start = 1'b1;
+    repeat(1) @(posedge clk);
+    start = 1'b0;
+    $stop;
   end
 
   i2c_controller i2c_controller_i (
@@ -40,4 +43,9 @@ module codec_control_tb;
     .scl(scl)
   );
 
-endmodule;
+  codec_bfm codec_bfm_i (
+    .scl(scl),
+    .sda(sda)
+  );
+
+endmodule

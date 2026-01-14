@@ -3,7 +3,7 @@ module codec_control_tb;
 
   logic        clk;
   logic        rst;
-  logic        start;
+  logic        valid;
   logic [15:0] address;
   logic [ 7:0] wdata;
   logic [ 7:0] rdata;
@@ -24,10 +24,11 @@ module codec_control_tb;
     address = 16'h1234;
     wdata = 8'h12;
     rnw   = 1'b0;
-    repeat(100) @(posedge clk);
-    start = 1'b1;
     repeat(1) @(posedge clk);
-    start = 1'b0;
+    valid = 1'b1;
+    repeat(1) @(posedge clk);
+    valid = 1'b0;
+    repeat(36) @(posedge scl);
     $stop;
   end
 
@@ -35,7 +36,7 @@ module codec_control_tb;
     .clk(clk),
     .rst(rst),
     .rnw(rnw),
-    .start(start),
+    .valid(valid),
     .address(address),
     .wdata(wdata),
     .rdata(rdata),

@@ -3,39 +3,98 @@ module i2c_engine # (
   )(
   input              clk,
   input              rst,
-  input        [1:0] op,
+  input              go,
+  input              rnw,
+  output logic       done,
   input        [7:0] wdata,
   output logic [7:0] rdata,
   output logic       scl,
   inout              sda,
   output logic       ack);
 
-  localparam logic [1:0] C_OP_IDLE      = 2'd0;
-  localparam logic [1:0] C_OP_WRITE     = 2'd1;
-  localparam logic [1:0] C_OP_READ      = 2'd2;
 
-  localparam logic [7:0] C_BYTE_LEN = 8'd7;
+  localparam logic [15:0] C_FALLING_EDGE = C_CLK_DIVISOR/2-1;
+  localparam logic [15:0] C_RISING_EDGE  = C_CLK_DIVISOR-1;
+  localparam logic [7:0] C_BYTE_LEN = 8'd8;
+  typedef enum logic [7:0] {S_IDLE, 
+                            S_START,
+                            S_GET_BYTE, 
+                            S_SET_BYTE, 
+                            S_GET_ACK, 
+                            S_SET_ACK,
+                            S_STOP} statetype_t;
+  statetype_t curr_state, next_state;
 
   logic        sda_dir;
   logic        sda_in;
   logic        sda_out;
-  logic        scl_en;
   logic [ 7:0] shift_out_reg;
   logic [ 7:0] shift_in_reg;
   logic [ 3:0] bit_count;
   logic [15:0] scl_count; 
 
   assign sda = sda_dir ? 1'bz : sda_out; // default is writing data
+  assign sda_out = (curr_state == S_START || curr_state == S_SET_ACK) ? 1'b0 : 
+                   (curr_state == S_STOP  || curr_state == S_STOP)    ? 1'b1 : shift_out_reg[7];
   assign sda_in = sda;
+  assign rdata = shift_in_reg;
+
+  always_ff @(posedge clk) begin
+    if (rst)
+      curr_state <= S_IDLE;
+    else
+      curr_state <= next_state;
+  end
+
+  always_comb begin
+    next_state = curr_state;
+    case(curr_state)
+      S_IDLE:
+        if (go)
+          next_state = S_START;
+      S_START:
+        if (scl_count == C_FALLING_EDGE)
+          if (rnw)
+            next_state = S_GET_BYTE;
+          else
+            next_state = S_SET_BYTE;
+      S_GET_BYTE:
+        if (bit_count == C_BYTE_LEN)
+          next_state = S_SET_ACK;
+      S_SET_BYTE:
+        if (bit_count == C_BYTE_LEN)
+          next_state = S_GET_ACK;
+      S_GET_ACK:
+        if (bit_count == C_BYTE_LEN + 1)
+          if (!go)
+            next_state = S_STOP;
+          else if (rnw)
+            next_state = S_GET_BYTE;
+          else 
+            next_state = S_SET_BYTE;
+      S_SET_ACK:
+        if (bit_count == C_BYTE_LEN + 1)
+          if (!go)
+            next_state = S_STOP;
+          else if (rnw)
+            next_state = S_GET_BYTE;
+          else 
+            next_state = S_SET_BYTE;
+      S_STOP:
+        if (scl_count == C_FALLING_EDGE)
+          next_state = S_IDLE;
+      default:
+        next_state = S_IDLE;
+    endcase
+  end
+
 
   //sda_dir reg
   always_ff @(posedge clk) begin
     if (rst)
       sda_dir <= 1'b0; //default write
-    else if (op == C_OP_IDLE || op == C_OP_READ)
+    else if (next_state == S_GET_BYTE || next_state == S_GET_ACK)
       sda_dir <= 1'b1;
-    else if (bit_count == C_BYTE_LEN+1) 
-      sda_dir <= 1'b1; //ack bit
     else
       sda_dir <= 1'b0;
   end
@@ -44,9 +103,9 @@ module i2c_engine # (
   always_ff @(posedge clk) begin
     if (rst)
       shift_in_reg <= 8'b0;
-    else if (op == C_OP_IDLE)
+    else if (curr_state == S_IDLE)
       shift_in_reg <= 8'b0; 
-    else if (op == C_OP_READ && scl_count == C_CLK_DIVISOR-1)
+    else if (curr_state == S_GET_BYTE && scl_count == C_RISING_EDGE)
       shift_in_reg <= {shift_in_reg[6:0], sda_in};
   end
 
@@ -54,35 +113,16 @@ module i2c_engine # (
   always_ff @(posedge clk) begin
     if (rst) 
       shift_out_reg <= 8'b0;
-    else if (op == C_OP_IDLE)
+    else if (next_state == S_IDLE || curr_state == S_GET_ACK)
       shift_out_reg <= wdata;
-    else if (scl_count == C_CLK_DIVISOR/2-1)
-      shift_out_reg <= {1'b0, shift_out_reg[7:1]};
+    else if (curr_state == S_SET_BYTE && scl_count == C_FALLING_EDGE)
+      shift_out_reg <= {shift_out_reg[6:0], 1'b0};
   end
   
-  //output data reg
-  always_ff @(posedge clk) begin
-    if (rst)
-      sda_out <= 1'b1;
-    else if (op == C_OP_IDLE)
-      sda_out <= 1'b1;
-    else if (op == C_OP_WRITE && scl_count == C_CLK_DIVISOR/2-1)
-      sda_out <= shift_out_reg[0];
-  end
-
-  //counter enable bit
-  always_ff @(posedge clk) begin
-    if (rst) 
-      scl_en <= 1'b0;
-    else if (op == C_OP_IDLE) 
-      scl_en <= 1'b0;
-    else
-      scl_en <= 1'b1;
-  end
 
   //clk divisor counter
   always_ff @(posedge clk) begin
-    if (rst || !scl_en)                  
+    if (rst || curr_state == S_IDLE)                  
       scl_count <= 16'b0;
     else if (scl_count == C_CLK_DIVISOR-1) 
       scl_count <= 16'b0;
@@ -92,11 +132,11 @@ module i2c_engine # (
 
   //scl register
   always_ff @(posedge clk) begin
-    if (rst || !scl_en)               
+    if (rst)               
       scl <= 1'b1;
-    else if (scl_count == C_CLK_DIVISOR/2-1) 
+    else if (scl_count == C_FALLING_EDGE) 
       scl <= 1'b0;
-    else if (scl_count == C_CLK_DIVISOR-1)   
+    else if (scl_count == C_RISING_EDGE) 
       scl <= 1'b1;
   end
 
@@ -104,10 +144,10 @@ module i2c_engine # (
   always_ff @(posedge clk) begin
     if (rst)                        
       bit_count <= 4'b0;
-    else if (scl_count == C_CLK_DIVISOR-1) 
+    else if (scl_count == C_RISING_EDGE) 
       if (bit_count == C_BYTE_LEN+1)
         bit_count <= 4'b0;
-      else
+      else if (curr_state != S_IDLE && curr_state != S_START && curr_state != S_STOP) 
         bit_count <= bit_count + 4'b1;
     end
 
@@ -121,4 +161,15 @@ module i2c_engine # (
       ack <= 1'b0;
   end
 
+  //done reg
+  always_ff @(posedge clk) begin
+    if (rst)
+      done <= 1'b0;
+    else if (next_state == S_GET_ACK || next_state == S_SET_ACK)
+      done <= 1'b1;
+    else
+      done <= 1'b0;
+  end
+
 endmodule
+

@@ -29,16 +29,10 @@ module codec_bfm (
   endtask
 
   task automatic drive_byte;
+    sda_en = 1'b1;
     for (int i = 7; i >= 0; i--) begin
-      // Change data while SCL low
       @(negedge scl);
-      if (wdata[i] == 1'b0) begin
-        sda_en  = 1'b1;
-        sda_out = 1'b0;
-      end else begin
-        sda_en  = 1'b0; // release for '1'
-        sda_out = 1'b1; // (doesn't matter when released)
-      end
+      sda_out = wdata[i];
       @(posedge scl);
     end
   endtask
@@ -81,7 +75,6 @@ module codec_bfm (
       // Address byte
       decode_address_byte(); send_ack();
 
-      // Next bytes (you had 2 gets; leaving similar structure)
       sample_byte; send_ack();  // "register address" maybe
       sample_byte; send_ack();  // "subaddress" maybe
 

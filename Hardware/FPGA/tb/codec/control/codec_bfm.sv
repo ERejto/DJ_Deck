@@ -42,9 +42,7 @@ module codec_bfm (
     sda_en  = 1'b1;
     sda_out = 1'b0;
     @(posedge scl);
-    @(negedge scl);
     sda_en  = 1'b0;
-    sda_out = 1'b1;
   endtask
 
   task automatic get_ack;
@@ -58,9 +56,8 @@ module codec_bfm (
   // ----------------------------
 
   task automatic decode_address_byte();
-    logic [7:0] addr;
     sample_byte;
-    rnw = addr[0];     // LSB is R/W
+    rnw = rdata[0];     // LSB is R/W
   endtask
 
   initial begin
@@ -73,19 +70,25 @@ module codec_bfm (
       wait_start();
 
       // Address byte
-      decode_address_byte(); send_ack();
+      decode_address_byte(); send_ack(); 
+      $display("[CODEC] RECEIVED CHIP ADDR: %0X OP: %0X", rdata,rnw);
+      
 
       sample_byte; send_ack();  // "register address" maybe
+      $display("[CODEC] RECEIVED ADDRESS %0X", rdata);
       sample_byte; send_ack();  // "subaddress" maybe
+      $display("[CODEC] RECEIVED SUB_ADDRESS %0X", rdata);
 
       if (rnw) begin
         // Read: slave drives data, master ACKs/NACKs
         drive_byte;
+        $display("[CODEC] SENT %0X", wdata);
         get_ack;
         // if NACK, master ended read; ignore for now
       end else begin
         // Write: master drives data, slave ACKs
         sample_byte;
+        $display("[CODEC] RECEIVED %0X", rdata);
         send_ack;
       end
     end end

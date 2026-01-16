@@ -101,8 +101,8 @@ module i2c_controller #(
   always_ff @(posedge clk) begin
     if (rst)
       op <= 1'b0;
-    else if (next_state == S_RX_RDATA)
-      op <= 1'b1;
+    else if (curr_state == S_RX_SUB_ADDRESS_ACK)
+      op <= rnw;
     else 
       op <= 1'b0;
 

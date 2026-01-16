@@ -35,7 +35,7 @@ module i2c_engine # (
 
   assign sda = sda_dir ? 1'bz : sda_out; // default is writing data
   assign sda_out = (curr_state == S_START || curr_state == S_SET_ACK) ? 1'b0 : 
-                   (curr_state == S_STOP  || curr_state == S_STOP)    ? 1'b1 : shift_out_reg[7];
+                   (curr_state == S_STOP  || curr_state == S_IDLE)    ? 1'b1 : shift_out_reg[7];
   assign sda_in = sda;
   assign rdata = shift_in_reg;
 
@@ -65,7 +65,7 @@ module i2c_engine # (
         if (bit_count == C_BYTE_LEN)
           next_state = S_GET_ACK;
       S_GET_ACK:
-        if (bit_count == C_BYTE_LEN + 1)
+        if (scl_count == C_RISING_EDGE)
           if (!go)
             next_state = S_STOP;
           else if (rnw)
@@ -73,7 +73,7 @@ module i2c_engine # (
           else 
             next_state = S_SET_BYTE;
       S_SET_ACK:
-        if (bit_count == C_BYTE_LEN + 1)
+        if (scl_count == C_RISING_EDGE)
           if (!go)
             next_state = S_STOP;
           else if (rnw)
@@ -93,7 +93,7 @@ module i2c_engine # (
   always_ff @(posedge clk) begin
     if (rst)
       sda_dir <= 1'b0; //default write
-    else if (next_state == S_GET_BYTE || next_state == S_GET_ACK)
+    else if (next_state == S_GET_BYTE || next_state == S_GET_ACK || next_state == S_STOP)
       sda_dir <= 1'b1;
     else
       sda_dir <= 1'b0;
@@ -113,9 +113,9 @@ module i2c_engine # (
   always_ff @(posedge clk) begin
     if (rst) 
       shift_out_reg <= 8'b0;
-    else if (next_state == S_IDLE || curr_state == S_GET_ACK)
+    else if (curr_state == S_START || curr_state == S_GET_ACK)
       shift_out_reg <= wdata;
-    else if (curr_state == S_SET_BYTE && scl_count == C_FALLING_EDGE)
+    else if (curr_state == S_SET_BYTE && scl_count == C_FALLING_EDGE && bit_count != 0)
       shift_out_reg <= {shift_out_reg[6:0], 1'b0};
   end
   
@@ -132,7 +132,7 @@ module i2c_engine # (
 
   //scl register
   always_ff @(posedge clk) begin
-    if (rst)               
+    if (rst || curr_state == S_IDLE || curr_state == S_STOP)               
       scl <= 1'b1;
     else if (scl_count == C_FALLING_EDGE) 
       scl <= 1'b0;
@@ -145,7 +145,7 @@ module i2c_engine # (
     if (rst)                        
       bit_count <= 4'b0;
     else if (scl_count == C_RISING_EDGE) 
-      if (bit_count == C_BYTE_LEN+1)
+      if (bit_count == C_BYTE_LEN)
         bit_count <= 4'b0;
       else if (curr_state != S_IDLE && curr_state != S_START && curr_state != S_STOP) 
         bit_count <= bit_count + 4'b1;
